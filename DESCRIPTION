@@ -16,7 +16,8 @@ Imports: magrittr,
     stringr,
     readr,
     tpur,
-    assuntos
+    assuntos,
+    tm
 Remotes: abjur/tpur, abjur/assuntos
 RoxygenNote: 6.0.1
 Suggests: testthat
