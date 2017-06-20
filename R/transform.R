@@ -55,12 +55,12 @@ arruma_me <- function(string_vec){
 #'@export
 fix_nomes <- function(names_column){
   names_column %>%
+    stringr::str_to_lower() %>%
     arruma_sa() %>%
     arruma_ltda() %>%
     arruma_me() %>%
     abjutils::rm_accent() %>%
-    tm::removePunctuation() %>%
-    stringr::str_to_lower()
+    tm::removePunctuation()
 }
 
 vec2regex <- function(...){
@@ -169,7 +169,8 @@ aggregate_major_companies <- function(names_column){
     regex_banco_rural = vec2regex("banco rural"),
     regex_banco_gmac = vec2regex("banco gmac"),
     regex_renova = vec2regex("renova"),
-    regex_modelo = vec2regex("supermercado modelo"))
+    regex_modelo = vec2regex("supermercado modelo"),
+    regex_cav)
 
   #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
   colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
