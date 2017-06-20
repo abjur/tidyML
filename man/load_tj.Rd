@@ -4,7 +4,7 @@
 \alias{load_tj}
 \alias{load_tjrs}
 \alias{load_tjsp}
-\alias{load_tjms}
+\alias{load_tjmt}
 \title{Carrega os dados brutos do Tribunal para iniciar limpeza}
 \usage{
 load_tj(raw_data, tj = "tjsp")
@@ -13,7 +13,7 @@ load_tjrs(raw_data)
 
 load_tjsp(raw_data)
 
-load_tjms(raw_data)
+load_tjmt(assuntos, processos, partes)
 }
 \arguments{
 \item{raw_data}{data.frame lido diretamente dos raw_data passados pelo
