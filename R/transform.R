@@ -84,7 +84,7 @@ aggregate_major_companies <- function(names_column){
     regex_nextel = vec2regex("nextel"),
     #a telemar foi comprada pela oi em algum momento.
     #Essa regex é muito perigosa porque ela transforma a oi na maior demandada do Rio.
-    regex_oi = vec2regex("telemar","( |^)oi( |$)", "tnl"),
+    regex_oi = vec2regex("telemar","( |^)oi( |$)", "tnl", "brasil telecom"),
     regex_itau = vec2regex("itau", "citicard"),
     regex_bradesco = vec2regex("bradesc"),
     regex_light = vec2regex("light","ligth"),
@@ -96,7 +96,7 @@ aggregate_major_companies <- function(names_column){
     regex_bmg = vec2regex("bmg"),
     regex_bb = vec2regex("banco do brasil", "bb"),
     regex_sky = vec2regex("sky"),
-    regex_vivo = vec2regex("vivo", "telefonica", "telesp"),
+    regex_vivo = vec2regex("vivo", "telefonica", "telesp", 'gvt', 'global village telecom'),
     regex_ricardoeletro = vec2regex("ricardo ?eletro", "rn comercio"),
     regex_net = vec2regex("^net$", "^net ", " net ", " net$"),
     regex_panamericano = vec2regex("banco pan"),
@@ -126,7 +126,7 @@ aggregate_major_companies <- function(names_column){
     regex_bgn = vec2regex("bgn"),
     regex_cielo = vec2regex("cielo"),
     regex_zurich = vec2regex("zurich"),
-    regex_vrg = vec2regex("vrg"),
+    regex_gol = vec2regex("vrg","gol"),
     regex_sony = vec2regex("sony"),
     regex_sendas = vec2regex("sendas"),
     regex_safra = vec2regex("safra"),
@@ -134,7 +134,42 @@ aggregate_major_companies <- function(names_column){
     regex_banco_mercantil = vec2regex("banco mercantil"),
     regex_avista = vec2regex("avista"),
     regex_digibras = vec2regex("digibras"),
-    regex_inss = vec2regex("inss"))
+    regex_inss = vec2regex("inss","instituto nacional do seguro social"),
+    #coloquei um x aqui pra não pegar na regex de baixo
+    regex_banco_vxolkswagen = vec2regex("banco volkswagen"),
+    regex_volkswagen = vec2regex("volkswagen"),
+    regex_energisa = vec2regex("energisa"),
+    regex_secretaria_de_saude_mt = vec2regex("estado de mato grosso secretaria (estadual|de estado) de saude"),
+    regex_azul = vec2regex("azul linhas"),
+    regex_serasa = vec2regex("serasa"),
+    regex_cemat = vec2regex("cemat"),
+    regex_porto_seguro = vec2regex("porto seguro"),
+    regex_avon = vec2regex("avon"),
+    regex_banco_finasa = vec2regex("finasa"),
+    regex_natura = vec2regex("natura","rodobens"),
+    regex_tokio_marine = vec2regex("tokio marine"),
+    #coloquei um x em fxord pra não pegar na regex de baixo
+    regex_banco_fxord = vec2regex("banco ford"),
+    regex_ford = vec2regex("ford"),
+    regex_basa = vec2regex("banco da amazoinia","basa"),
+    regex_pdg = vec2regex("pdg", "goldfarb"),
+    regex_furnas = vec2regex("furnas"),
+    regex_cef = vec2regex("cef","caixa economica federal"),
+    regex_mapfre = vec2regex("mapfre"),
+    regex_cvc = vec2regex("cvc"),
+    #coloquei um x em fxiat pra não pegar na regex de baixo
+    regex_banco_fxiat = vec2regex("banco fiat"),
+    regex_ford = vec2regex("fiat"),
+    regex_banco_hxonda = vec2regex("banco honda"),
+    regex_honda = vec2regex("honda"),
+    regex_catho = vec2regex("catho"),
+    regex_buscape = vec2regex("buscape"),
+    regex_abn = vec2regex("banco abn amro"),
+    regex_riachuelo = vec2regex("riachuelo"),
+    regex_banco_rural = vec2regex("banco rural"),
+    regex_banco_gmac = vec2regex("banco gmac"),
+    regex_renova = vec2regex("renova"),
+    regex_modelo = vec2regex("supermercado modelo"))
 
   #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
   colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
