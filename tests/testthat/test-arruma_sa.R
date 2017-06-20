@@ -29,6 +29,7 @@ test_that("testa todos os tipos e posiçoes de 's/a'.", {
   expect_equal(arruma_sa('air france s.a.'), 'air france @s@a@')
   expect_equal(arruma_sa('auto pista fluminense s.a'), 'auto pista fluminense @s@a@')
   expect_equal(arruma_sa('banco cruzeiro do sul s a em liquidacao extrajudicial'), 'banco cruzeiro do sul @s@a@ em liquidacao extrajudicial')
+  expect_equal(arruma_sa('cab cuiaba sa concessionaria de servicos publicos de agua e esgoto'), 'cab cuiaba @s@a@ concessionaria de servicos publicos de agua e esgoto')
 })
 
 test_that("testa os casos em que nao deveria fazer nada", {
