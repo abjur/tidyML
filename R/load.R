@@ -69,9 +69,26 @@ load_tjsp <- function(raw_data) {
 #' @import stringr
 #' @import lubridate
 #' @export
-load_tjms <- function(raw_data) {
+load_tjmt <- function(assuntos, processos, partes) {
+  assuntos <- assuntos %>%
+    janitor::clean_names() %>%
+    dplyr::select(selo_seq_cabecalho, cod_assunto, assunto_nome, assunto_situacao)
 
+  processos <- processos %>%
+    janitor::clean_names() %>%
+    set_names(abjutils::rm_accent(names(.))) %>%
+    select(selo_seq_cabecalho, sigla, selo_processo_numero_unico, selo_data_de_ajuizamento,
+           selo_codigo_localidade, selo_codigo_orgao_julgador, selo_nome_orgao_julgador, selo_instancia_orgao_julgador,
+           selo_orgao_julgador_codigo_ibge, cod_classe, classe_nome)
+
+  base_consolidada <- partes %>%
+    janitor::clean_names() %>%
+    dplyr::inner_join(assuntos, by = 'selo_seq_cabecalho') %>%
+    dplyr::inner_join(processos, by = 'selo_seq_cabecalho')
+
+  return(base_consolidada)
 }
+
 
 load_tjba <- function(raw_data) {
 
