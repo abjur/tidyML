@@ -155,3 +155,42 @@ load_tjam <- function(path) {
 load_tjba <- function(path) {
 
 }
+
+load_tjmt <- function(assuntos, processos, partes) {
+  assuntos <- assuntos %>%
+    janitor::clean_names() %>%
+    dplyr::select(selo_seq_cabecalho, cod_assunto, assunto_nome, assunto_situacao)
+
+  processos <- processos %>%
+    janitor::clean_names() %>%
+    set_names(abjutils::rm_accent(names(.))) %>%
+    select(selo_seq_cabecalho, sigla, selo_processo_numero_unico, selo_data_de_ajuizamento,
+           selo_codigo_localidade, selo_codigo_orgao_julgador, selo_nome_orgao_julgador, selo_instancia_orgao_julgador,
+           selo_orgao_julgador_codigo_ibge, cod_classe, classe_nome)
+
+  base_consolidada <- partes %>%
+    janitor::clean_names() %>%
+    dplyr::inner_join(assuntos, by = 'selo_seq_cabecalho') %>%
+    dplyr::inner_join(processos, by = 'selo_seq_cabecalho')
+
+  return(base_consolidada)
+}
+
+
+#' @rdname load_senacon
+#' @import dplyr
+#' @import stringr
+#' @import lubridate
+#' @export
+load_senacon <- function(raw_data){
+  raw_data %>%
+    purrr::set_names(unlist(.[1,])) %>%
+    dplyr::as_data_frame() %>%
+    dplyr::filter(Sexo %in% c("F","M")) %>%
+    janitor::clean_names() %>%
+    purrr::set_names(abjutils::rm_accent(names(.))) %>%
+    dplyr::mutate(data_finalizacao = dmy(data_finalizacao),
+                  tempo_reposta = as.numeric(tempo_reposta),
+                  procurou_empresa = ifelse(procurou_empresa == "S",T,F),
+                  respondida = ifelse(respondida == "S",T,F))
+}
