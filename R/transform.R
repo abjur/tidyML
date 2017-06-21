@@ -70,10 +70,10 @@ vec2regex <- function(...){
 #' Collapes names of major companies
 #'
 #' In a vector of company names the same company usually appears with various names.
-#' This function lists some of them and aggregates them unde one main name.
+#' This function lists some of them and aggregates them under one main name.
 #'
 #' @param names_column a string vector of company names
-#' @return the string vector with and aggregation of the names of major companies
+#' @return the string vector with an aggregation of the names of major companies
 #'
 #' @export
 aggregate_major_companies <- function(names_column){
@@ -170,7 +170,22 @@ aggregate_major_companies <- function(names_column){
     regex_banco_gmac = vec2regex("banco gmac"),
     regex_renova = vec2regex("renova"),
     regex_modelo = vec2regex("supermercado modelo"),
-    regex_cav)
+    regex_philips = vec2regex("philips|phillips"),
+    regex_positivo = vec2regex("positivo"),
+    regex_lg = vec2regex("lg"),
+    regex_lenovo = vec2regex("lenovo"),
+    regex_magazine_luiza = vec2regex("magazine luiza"),
+    regex_pernambucanas = vec2regex("pernambucanas"),
+    regex_brastempo = vec2regex("brastemp"),
+    regex_consul = vec2regex("consul"),
+    regex_esmaltec = vec2regex("esmaltec"),
+    regex_atlas = vec2regex("atlas"),
+    regex_latina = vec2regex("latina"),
+    regex_mueller = vec2regex("mueller"),
+    regex_multiplus = vec2regex("multiplus"),
+    regex_smiles = vec2regex("smiles"),
+    regex_dotz = vec2regex("dotz"),
+    regex_livelo = vec2regex("livelo"))
 
   #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
   colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
@@ -179,4 +194,43 @@ aggregate_major_companies <- function(names_column){
     names_column <- ifelse(colunas_bl[[i]], names(colunas_bl)[i], names_column)
   }
   names_column
+}
+
+#' Creates column of companies segment
+#'
+#' Receives a vector of company names and return a vector os segments.
+#'
+#' @param names_column a string vector of company names
+#' @return the string vector of company segments
+#'
+#' @export
+market_segments <- function(names_column){
+
+  lista_de_regex <- list(
+    telecomunicacoes = vec2regex("vivo","oi","claro","tim","sky","net","nextel"),
+    bancos_cartoes_financeiras = vec2regex("cef","itau","bb","bradesco","santander","bmg","panamericano","bv","ourocard","hsbc"),
+    comercio_eletronico = vec2regex("cnova","kabum","nova pontocom","wmb","buscape"),
+    banco_de_dados = vec2regex("serasa","scpc","cdl"),
+    fabricantes_eletrocnicos = vec2regex("cielo","sony","samsung","lg","positivo","philips","aoc","lenovo","semp toshipa","d-link","cce","lexmark","compaq"),
+    varejo = vec2regex("vvar","ricardoeletro","pernambucanas","sendas","riachuelo"),
+    transporte_aereo = vec2regex("latam","azul","gol","avianca","lufthansa"),
+    seguros = vec2regex("mapfre","cardif","caixa seguros","bradesco auto","bb seguro auto","garantec","bradesco vida","itau seguros","assurant","zurich","luizaseg","sulamerica"),
+    energia_gas_agua_esgoto = vec2regex("furnas","cedae","energisa","light","cpfl","rge","copel","comgas","cagece","coelce","ampla","fenosa","saae"),
+    fabricantes_linha_branca = vec2regex("brastemp","consul","electrolux","esmaltec","atlas","latina","mueller"),
+    agencias_de_viagem = vec2regex("decolar","viajanet","cvc"),
+    programas_de_fidelidade = vec2regex("smiles","multiplus","dotz","livelo"),
+    planos_de_saude = vec2regex("amil","bradesco saude","qualicorp","sulamerica odontologico","sulamerica saude","odontoprev","unimed","golden cross"),
+    recuperacao_credito = vec2regex("ativos","recovery"),
+    perfumaria = vec2regex("natura","avon","boticario","eudora"),
+    supermercados = vec2regex("extra","carrefour","pao de acucar","walmart","big","hiper"),
+    pagamento_eletronico = vec2regex("getnet","paypal","pagseguro","ebanx","moip"))
+
+  #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
+  colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
+
+  for(i in seq_along(colunas_bl)){
+    names_column <- ifelse(colunas_bl[[i]], names(colunas_bl)[i], names_column)
+  }
+  names_column
+
 }
