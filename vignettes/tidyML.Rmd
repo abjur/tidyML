@@ -1,0 +1,51 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+paths <- list(
+  tjam = '/home/storage/abj/projects/cnjData/cnj_tjam/Parseados',
+  tjba = '/home/storage/abj/projects/cnjData/cnj_tjba/Parseados',
+  tjrs = '/home/storage/abj/projects/cnjData/cnj_tjrs',
+  tjsp = '/home/storage/abj/projects/cnjData/cnj_tjsp'
+)
+library(tidyverse)
+devtools::load_all()
+```
+
+## Filtros
+
+- parseou corretamente
+- area civel (se área é NA, o processo é segredo de justiça)
+- assunto nao é NA
+- precisa ser o processo principal.
+
+## Critérios
+
+- sempre pegar da primeira movimentação
+- a primeira parte é a parte principal.
+    - ~500 casos perdidos no TJAM com esse critério.
+    - ~3k casos perdidos no TJAM com esse critério.
+
+## Problemas
+
+- [MA] todos são da capital :O
+
+## TJAM
+
+```{r}
+d_tjam <- load_tj(paths$tjam, 'TJAM')
+```
+
+## TJBA
+
+```{r}
+d_tjba <- load_tj(paths$tjba, 'TJBA')
+```
