@@ -132,10 +132,10 @@ load_tjam <- function(path) {
     # suposição: primeiro nome é o nome principal
     group_by(html, polo) %>%
     mutate(parte_all = paste(parte, collapse = '\n')) %>%
-    slice(1) %>%
-    ungroup() %>%
     # basta mudar aqui caso queira considerar parte_all no lugar da primeira parte.
-    select(-parte_all) %>%
+    summarise(parte = first(parte)) %>%
+    # summarise(parte = first(parte_all)) %>%
+    ungroup() %>%
     spread(polo, parte)
   # juntando tudo
   loc <- locale(decimal_mark = ',', grouping_mark = '.')
@@ -153,7 +153,81 @@ load_tjam <- function(path) {
 }
 
 load_tjba <- function(path) {
-
+  all_files <- dir(paths$tjba, full.names = TRUE,
+                   pattern = '[0-9].rds')
+  ## leitura inicial
+  d_tjba <- all_files %>%
+    map_df(readRDS) %>%
+    mutate(html = basename(arq)) %>%
+    filter(arq != 'erro')
+  ## filtros iniciais
+  tjba_infos <- d_tjba %>%
+    select(html, infos) %>%
+    unnest(infos) %>%
+    filter(is.na(erro)) %>%
+    select(-erro) %>%
+    filter(str_length(key) < 50) %>%
+    group_by(html, key) %>%
+    summarise(value = paste(value, collapse = '\n')) %>%
+    ungroup() %>%
+    spread(key, value) %>%
+    filter(!is.na(area), area == 'Cível') %>%
+    filter(!is.na(assunto)) %>%
+    filter(is.na(processo_principal))
+  ## movimentacoes
+  tjba_first_mov <- d_tjba %>%
+    select(html, movs) %>%
+    semi_join(tjba_infos, 'html') %>%
+    unnest(movs) %>%
+    mutate(data_mov = lubridate::dmy(data_mov)) %>%
+    arrange(data_mov) %>%
+    filter(str_detect(titulo, regex('distr', ignore_case = TRUE))) %>%
+    group_by(html) %>%
+    slice(1) %>%
+    ungroup() %>%
+    select(html, dt_dist = data_mov)
+  ## partes
+  tjba_partes <- d_tjba %>%
+    select(html, partes) %>%
+    semi_join(tjba_infos, 'html') %>%
+    unnest(partes) %>%
+    select(-adv) %>%
+    separate(parte, c('parte', 'adv'), sep = '[\t\n\f\r]',
+             extra = 'merge', fill = 'right') %>%
+    mutate_at(vars(parte, adv), funs(str_trim)) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., ' *[\n\t\f\r]+ *', '@'))) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., '@+', '@'))) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., ':[[:space:]]?@', '|'))) %>%
+    mutate(adv = str_split(adv, '@') %>%
+             map(~str_split_fixed(.x, fixed('|'), 2) %>%
+                   as_tibble() %>%
+                   setNames(c('forma_adv', 'adv')))) %>%
+    filter(str_detect(forma, 'req|recl|exe|reu|autor|^re$|^impe')) %>%
+    mutate(polo = case_when(
+      str_detect(forma, '[ae]nte$|autor|qte$') ~ 'autor',
+      str_detect(forma, '[ai]d[ao]$|reu|cdo$') ~ 'reu'
+    )) %>%
+    select(html, polo, parte) %>%
+    # suposição: primeiro nome é o nome principal
+    group_by(html, polo) %>%
+    mutate(parte_all = paste(parte, collapse = '\n')) %>%
+    # basta mudar aqui caso queira considerar parte_all no lugar da primeira parte.
+    summarise(parte = first(parte)) %>%
+    # summarise(parte = first(parte_all)) %>%
+    ungroup() %>%
+    spread(polo, parte)
+  # juntando tudo
+  loc <- locale(decimal_mark = ',', grouping_mark = '.')
+  tjba_final <- tjba_infos %>%
+    mutate(n_processo = str_replace_all(html, '[^0-9]', ''),
+           tj = 'TJBA',
+           comarca = if_else(str_detect(lugar, 'apital'), 'Manaus', 'Outro'),
+           foro = str_match(lugar, '(Fórum |Foro )(.*)$')[, 3],
+           valor = parse_number(valor_da_acao, locale = loc)) %>%
+    inner_join(tjba_first_mov, 'html') %>%
+    inner_join(tjba_partes, 'html') %>%
+    select(tj, n_processo, dt_dist, classe, assunto, comarca,
+           foro, autor, reu, valor)
 }
 
 load_tjmt <- function(assuntos, processos, partes) {
