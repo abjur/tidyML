@@ -60,7 +60,7 @@ fix_nomes <- function(names_column){
     arruma_ltda() %>%
     arruma_me() %>%
     abjutils::rm_accent() %>%
-    tm::removePunctuation()
+    stringr::str_replace_all("[!#$%&'()*+,-./:;<=>?^_`{|}~.]","")
 }
 
 vec2regex <- function(...){
@@ -136,8 +136,8 @@ aggregate_major_companies <- function(names_column){
     regex_digibras = vec2regex("digibras"),
     regex_inss = vec2regex("inss","instituto nacional do seguro social"),
     #coloquei um x aqui pra não pegar na regex de baixo
-    regex_banco_vxolkswagen = vec2regex("banco volkswagen"),
-    regex_volkswagen = vec2regex("volkswagen"),
+    regex_banco_vxolkswagen = vec2regex("banco volks[wv]age[nm]"),
+    regex_volkswagen = vec2regex("volks[wv]age[nm]"),
     regex_energisa = vec2regex("energisa"),
     regex_secretaria_de_saude_mt = vec2regex("estado de mato grosso secretaria (estadual|de estado) de saude"),
     regex_azul = vec2regex("azul linhas"),
@@ -151,7 +151,7 @@ aggregate_major_companies <- function(names_column){
     #coloquei um x em fxord pra não pegar na regex de baixo
     regex_banco_fxord = vec2regex("banco ford"),
     regex_ford = vec2regex("ford"),
-    regex_basa = vec2regex("banco da amazoinia","basa"),
+    regex_basa = vec2regex("banco da amazonia","basa"),
     regex_pdg = vec2regex("pdg", "goldfarb"),
     regex_furnas = vec2regex("furnas"),
     regex_cef = vec2regex("cef","caixa economica federal"),
@@ -185,7 +185,20 @@ aggregate_major_companies <- function(names_column){
     regex_multiplus = vec2regex("multiplus"),
     regex_smiles = vec2regex("smiles"),
     regex_dotz = vec2regex("dotz"),
-    regex_livelo = vec2regex("livelo"))
+    regex_livelo = vec2regex("livelo"),
+    regex_avianca = vec2regex("avianca"),
+    regex_cab_cuiaba = vec2regex("cab cuiaba"),
+    regex_losango = vec2regex("losango"),
+    regex_novo_mundo_moveis_mt = vec2regex("novo ?mundo ?moveis"),
+    regex_calcar = vec2regex("calcard"),
+    regex_ativos = vec2regex("ativos"),
+    regex_sanecap_mt = vec2regex("sanecap"),
+    regex_prime_mt = vec2regex("prime incorporacoes"),
+    regex_general_motors = vec2regex("general motors"),
+    regex_lotufo_engenharia = vec2regex("lotufo"),
+    regex_sulamerica = vec2regex("sul ?america"),
+    regex_omni = vec2regex("omni financeira"),
+    regex_brookfield_incorporadora = vec2regex("brookfield"))
 
   #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
   colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
@@ -215,7 +228,7 @@ market_segments <- function(names_column){
     varejo = vec2regex("vvar","ricardoeletro","pernambucanas","sendas","riachuelo"),
     transporte_aereo = vec2regex("latam","azul","gol","avianca","lufthansa"),
     seguros = vec2regex("mapfre","cardif","caixa seguros","bradesco auto","bb seguro auto","garantec","bradesco vida","itau seguros","assurant","zurich","luizaseg","sulamerica"),
-    energia_gas_agua_esgoto = vec2regex("furnas","cedae","energisa","light","cpfl","rge","copel","comgas","cagece","coelce","ampla","fenosa","saae"),
+    energia_gas_agua_esgoto = vec2regex("sanecap","cab cuiaba","furnas","cedae","energisa","light","cpfl","rge","copel","comgas","cagece","coelce","ampla","fenosa","saae"),
     fabricantes_linha_branca = vec2regex("brastemp","consul","electrolux","esmaltec","atlas","latina","mueller"),
     agencias_de_viagem = vec2regex("decolar","viajanet","cvc"),
     programas_de_fidelidade = vec2regex("smiles","multiplus","dotz","livelo"),
