@@ -4,7 +4,7 @@
 #' seleção das colunas de interesse para essa fase da pesquisa e arruma os
 #' formatos para ficar tudo igual.
 #'
-#' @param raw_data data.frame lido diretamente dos raw_data passados pelo
+#' @param path data.frame lido diretamente dos path passados pelo
 #'   Tribunal.
 #' @param tj nome do Tribunal. Pode ser \code{"tjrs"}, \code{"tjsp"},
 #'   \code{"tjms"} ou \code{"tjba"}.
@@ -15,10 +15,10 @@
 #'   \item{"autor"}{Autor} \item{"reu"}{Réu} \item{"vl_causa"}{Valor da causa} }
 #'
 #' @export
-load_tj <- function(raw_data, tj = 'tjsp') {
+load_tj <- function(path, tj = 'tjsp') {
   tj <- tolower(tj)
   fun_str <- paste0('load_', tj)
-  eval(parse(text = fun_str))(raw_data)
+  eval(parse(text = fun_str))(path)
 }
 
 #' @rdname load_tj
@@ -26,8 +26,8 @@ load_tj <- function(raw_data, tj = 'tjsp') {
 #' @import stringr
 #' @import lubridate
 #' @export
-load_tjrs <- function(raw_data) {
-  raw_data %>%
+load_tjrs <- function(path) {
+  path %>%
     mutate(dt_dist = dmy_hms(data_distribuicao),
            nproc_len = str_length(n_processo),
            ncnj = nproc_len == 20,
@@ -48,8 +48,8 @@ load_tjrs <- function(raw_data) {
 #' @import stringr
 #' @import lubridate
 #' @export
-load_tjsp <- function(raw_data) {
-  raw_data %>%
+load_tjsp <- function(path) {
+  path %>%
     mutate(dt_dist = dmy_hms(data_ultima_distribuicao),
            nproc_len = str_length(numero_processo),
            ncnj = nproc_len == 25,
@@ -69,10 +69,89 @@ load_tjsp <- function(raw_data) {
 #' @import stringr
 #' @import lubridate
 #' @export
-load_tjms <- function(raw_data) {
-
+load_tjam <- function(path) {
+  ## leitura do master para checks
+  # master_file_tjam <- dir(paths$tjam, full.names = TRUE, pattern = 'master.rds')
+  # master_tjam <- readRDS(master_file_tjam)
+  ## lista de arquivos
+  all_files <- dir(path, full.names = TRUE,
+                   pattern = '[0-9].rds')
+  ## leitura inicial
+  d_tjam <- all_files %>%
+    map_df(readRDS) %>%
+    mutate(html = basename(arq)) %>%
+    filter(arq != 'erro')
+  ## filtros iniciais
+  tjam_infos <- d_tjam %>%
+    select(html, infos) %>%
+    unnest(infos) %>%
+    filter(is.na(erro)) %>%
+    select(-erro) %>%
+    filter(str_length(key) < 50) %>%
+    group_by(html, key) %>%
+    summarise(value = paste(value, collapse = '\n')) %>%
+    ungroup() %>%
+    spread(key, value) %>%
+    filter(!is.na(area), area == 'Cível') %>%
+    filter(!is.na(assunto)) %>%
+    filter(is.na(processo_principal))
+  ## movimentacoes
+  tjam_first_mov <- d_tjam %>%
+    select(html, movs) %>%
+    semi_join(tjam_infos, 'html') %>%
+    unnest(movs) %>%
+    mutate(data_mov = lubridate::dmy(data_mov)) %>%
+    arrange(data_mov) %>%
+    filter(str_detect(titulo, regex('distr', ignore_case = TRUE))) %>%
+    group_by(html) %>%
+    slice(1) %>%
+    ungroup() %>%
+    select(html, dt_dist = data_mov)
+  ## partes
+  tjam_partes <- d_tjam %>%
+    select(html, partes) %>%
+    semi_join(tjam_infos, 'html') %>%
+    unnest(partes) %>%
+    select(-adv) %>%
+    separate(parte, c('parte', 'adv'), sep = '[\t\n\f\r]',
+             extra = 'merge', fill = 'right') %>%
+    mutate_at(vars(parte, adv), funs(str_trim)) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., ' *[\n\t\f\r]+ *', '@'))) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., '@+', '@'))) %>%
+    mutate_at(vars(parte, adv), funs(str_replace_all(., ':[[:space:]]?@', '|'))) %>%
+    mutate(adv = str_split(adv, '@') %>%
+             map(~str_split_fixed(.x, fixed('|'), 2) %>%
+                   as_tibble() %>%
+                   setNames(c('forma_adv', 'adv')))) %>%
+    filter(str_detect(forma, 'req|recl|exe')) %>%
+    mutate(polo = case_when(
+      str_detect(forma, '[ae]nte$') ~ 'autor',
+      str_detect(forma, '[ai]d[ao]$') ~ 'reu'
+    )) %>%
+    select(html, polo, parte) %>%
+    # suposição: primeiro nome é o nome principal
+    group_by(html, polo) %>%
+    mutate(parte_all = paste(parte, collapse = '\n')) %>%
+    slice(1) %>%
+    ungroup() %>%
+    # basta mudar aqui caso queira considerar parte_all no lugar da primeira parte.
+    select(-parte_all) %>%
+    spread(polo, parte)
+  # juntando tudo
+  loc <- locale(decimal_mark = ',', grouping_mark = '.')
+  tjam_final <- tjam_infos %>%
+    mutate(n_processo = str_replace_all(html, '[^0-9]', ''),
+           tj = 'TJAM',
+           comarca = if_else(str_detect(lugar, 'apital'), 'Manaus', 'Outro'),
+           foro = str_match(lugar, '(Fórum |Foro )(.*)$')[, 3],
+           valor = parse_number(valor_da_acao, locale = loc)) %>%
+    inner_join(tjam_first_mov, 'html') %>%
+    inner_join(tjam_partes, 'html') %>%
+    select(tj, n_processo, dt_dist, classe, assunto, comarca,
+           foro, autor, reu, valor)
+  tjam_final
 }
 
-load_tjba <- function(raw_data) {
+load_tjba <- function(path) {
 
 }
