@@ -93,3 +93,21 @@ load_tjmt <- function(assuntos, processos, partes) {
 load_tjba <- function(raw_data) {
 
 }
+
+#' @rdname load_senacon
+#' @import dplyr
+#' @import stringr
+#' @import lubridate
+#' @export
+load_senacon <- function(raw_data){
+  raw_data %>%
+    purrr::set_names(unlist(.[1,])) %>%
+    dplyr::as_data_frame() %>%
+    dplyr::filter(Sexo %in% c("F","M")) %>%
+    janitor::clean_names() %>%
+    purrr::set_names(abjutils::rm_accent(names(.))) %>%
+    dplyr::mutate(data_finalizacao = dmy(data_finalizacao),
+                  tempo_reposta = as.numeric(tempo_reposta),
+                  procurou_empresa = ifelse(procurou_empresa == "S",T,F),
+                  respondida = ifelse(respondida == "S",T,F))
+}
