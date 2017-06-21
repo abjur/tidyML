@@ -152,6 +152,11 @@ load_tjam <- function(path) {
   tjam_final
 }
 
+#' @rdname load_tj
+#' @import dplyr
+#' @import stringr
+#' @import lubridate
+#' @export
 load_tjba <- function(path) {
   all_files <- dir(paths$tjba, full.names = TRUE,
                    pattern = '[0-9].rds')
@@ -202,10 +207,10 @@ load_tjba <- function(path) {
              map(~str_split_fixed(.x, fixed('|'), 2) %>%
                    as_tibble() %>%
                    setNames(c('forma_adv', 'adv')))) %>%
-    filter(str_detect(forma, 'req|recl|exe|reu|autor|^re$|^impe')) %>%
+    filter(str_detect(str_trim(forma), 'req|recl|exe|reu|autor|^re$|^impe')) %>%
     mutate(polo = case_when(
       str_detect(forma, '[ae]nte$|autor|qte$') ~ 'autor',
-      str_detect(forma, '[ai]d[ao]$|reu|cdo$') ~ 'reu'
+      str_detect(forma, '[ai]d[ao]$|^reu?$|cd[oa]$') ~ 'reu'
     )) %>%
     select(html, polo, parte) %>%
     # suposição: primeiro nome é o nome principal
@@ -222,7 +227,7 @@ load_tjba <- function(path) {
     mutate(n_processo = str_replace_all(html, '[^0-9]', ''),
            tj = 'TJBA',
            comarca = if_else(str_detect(lugar, 'apital'), 'Manaus', 'Outro'),
-           foro = str_match(lugar, '(Fórum |Foro )(.*)$')[, 3],
+           foro = str_trim(str_match(lugar, ' -([^-]+)$')[, 2]),
            valor = parse_number(valor_da_acao, locale = loc)) %>%
     inner_join(tjba_first_mov, 'html') %>%
     inner_join(tjba_partes, 'html') %>%
