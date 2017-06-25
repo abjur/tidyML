@@ -86,8 +86,11 @@ filter_tjrs <- function(loaded_tjrs){
                                       "instituto","fundacao")
 
   d_tjrs <- d_tjrs %>%
-    dplyr::mutate(tipo_pessoa = str_detect(nome2, regex_empresa)) %>%
-    tidyr::separate(assunto, into = c('assunto', 'assunto_contexto'))
+    tidyr::separate(assunto, into = c('assunto_2', 'assunto_pai'), remove = F, sep = "::") %>%
+    mutate(assunto_final = ifelse(str_detect(assunto, "::"), assunto_2, assunto),
+           assunto_final = stringr::str_trim(assunto_final),
+           tem_pessoa = stringr::str_detect(nome2, regex_empresa)) %>%
+    filter((assunto_final %in% stringr::str_trim(assuntos_consumeristas)), tem_pessoa)
 
 
   #especifico tjrs
@@ -115,6 +118,8 @@ filter_tjrs <- function(loaded_tjrs){
   codigos_consumeristas <- unique(c(assuntos_consumeristas_estatiticos$leaf,
                                     assuntos_consumeristas_tpu$codigo))
 
+  codigos_consumeristas_puros <- assuntos_consumeristas_tpu$codigo
+
   tpu <- tpur::download_table("assunto","estadual","1 grau") %>%
     tpur::build_table() %>%
     dplyr::filter(codigo != "") %>%
@@ -131,7 +136,13 @@ filter_tjrs <- function(loaded_tjrs){
     dplyr::distinct(codigo, assunto)
 
   assuntos_consumeristas <- l_tpu %>%
-    filter(codigo %in% codigos_consumeristas) %>%
+    dplyr::filter(codigo %in% codigos_consumeristas) %>%
+    with(assunto) %>%
+    c(especifico_tjrs) %>%
+    unique
+
+  assuntos_consumeristas_puros <- l_tpu %>%
+    dplyr::filter(codigo %in% codigos_consumeristas_puros) %>%
     with(assunto) %>%
     c(especifico_tjrs) %>%
     unique
