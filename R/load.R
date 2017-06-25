@@ -28,6 +28,8 @@ load_tj <- function(path, tj = 'tjsp') {
 #' @export
 load_tjrs <- function(path) {
   path %>%
+    dir(pattern = 'anexo1.rds', full.names = TRUE) %>%
+    readRDS() %>%
     mutate(dt_dist = dmy_hms(data_distribuicao),
            nproc_len = str_length(n_processo),
            ncnj = nproc_len == 20,
@@ -50,6 +52,8 @@ load_tjrs <- function(path) {
 #' @export
 load_tjsp <- function(path) {
   path %>%
+    dir(pattern = 'anexo1.rds', full.names = TRUE) %>%
+    readRDS() %>%
     mutate(dt_dist = dmy_hms(data_ultima_distribuicao),
            nproc_len = str_length(numero_processo),
            ncnj = nproc_len == 25,
