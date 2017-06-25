@@ -86,6 +86,9 @@ aggregate_major_companies <- function(names_column){
     #Essa regex é muito perigosa porque ela transforma a oi na maior demandada do Rio.
     regex_oi = vec2regex("telemar","( |^)oi( |$)", "tnl", "(brasil|br) ?teleco[mn]"),
     regex_itau = vec2regex("unibanco", "itau", "citicard"),
+    regex_renner = vec2regex("banco a ?j renner"),
+    regex_crefisa = vec2regex("crefisa"),
+    regex_cdl_porto_alegre = vec2regex("(cdl|camara( de)? dirigentes lojistas)"),
     regex_banco_credifibra = vec2regex("credifibra"),
     regex_farroupilha_consorcios = vec2regex("farroupilha"),
     regex_cacique = vec2regex("banco cacique"),
@@ -143,12 +146,11 @@ aggregate_major_companies <- function(names_column){
     #coloquei um x aqui pra não pegar na regex de baixo
     regex_banco_vxolkswagen = vec2regex("banco volks[wv]age[nm]"),
     regex_volkswagen = vec2regex("volks[wv]age[nm]"),
-    regex_energisa = vec2regex("energisa"),
+    regex_energisa = vec2regex("energisa","cemat"),
     regex_secretaria_de_saude_mt = vec2regex("estado de mato grosso secretaria (estadual|de estado) de saude"),
     regex_azul = vec2regex("azul linhas"),
     regex_serasa = vec2regex("serasa"),
-    regex_spc = vec2regex("spc"),
-    regex_cemat = vec2regex("cemat"),
+    regex_spc = vec2regex("spc","scpc"),
     regex_porto_seguro = vec2regex("porto seguro"),
     regex_avon = vec2regex("avon"),
     regex_banco_finasa = vec2regex("finasa"),
@@ -213,7 +215,8 @@ aggregate_major_companies <- function(names_column){
     regex_cifra = vec2regex("cifra"),
     regex_corsan = vec2regex("corsan"),
     regex_rio_grande_energia = vec2regex("rio grande energia"),
-    regex_sofisa = vec2regex("sofisa"))
+    regex_sofisa = vec2regex("sofisa"),
+    regex_cce = vec2regex("cce"))
 
   #considerando que eu vou fazer um for depois, realmente vale a pena construir esse objeto?
   colunas_bl <- purrr::map(lista_de_regex, str_detect, string = names_column)
@@ -236,19 +239,19 @@ market_segments <- function(names_column){
 
   lista_de_regex <- list(
     telecomunicacoes = vec2regex("vivo","oi","claro","tim","sky","net","nextel"),
-    bancos_cartoes_financeiras = vec2regex("ford","sofisa","schahin","cacique","credifibra","farroupilha","aymore","cifra","banco( |_)mercantil","herval","bonsucesso","bgn","citi","gmac","abn","daycoval","safra","cruzeiro( |_)do( |_)sul","banrisul","volkswage[nm]","renner","finasa","cef","itau","bb","bradesco","santander","bmg","panamericano","bv","ourocard","hsbc"),
-    comercio_eletronico = vec2regex("cnova","kabum","nova pontocom","wmb","buscape"),
-    banco_de_dados = vec2regex("serasa","scpc","boa( |_)vista","cdl"),
+    bancos_cartoes_financeiras = vec2regex("losango","american express","amex","credicard","banco","ford","sofisa","schahin","cacique","credifibra","farroupilha","aymore","cifra","banco( |_)mercantil","herval","bonsucesso","bgn","citi","gmac","abn","daycoval","safra","cruzeiro( |_)do( |_)sul","banrisul","volkswage[nm]","renner","finasa","cef","itau","bb","bradesco","santander","bmg","panamericano","bv","ourocard","hsbc"),
+    comercio_eletronico = vec2regex("centaurocombr","peixe urbano","cnova","kabum","nova pontocom","wmb","buscape","submarino","americanascom","casasbahiacom","pontofriocom","magazineluizacom"),
+    banco_de_dados = vec2regex("spc","serasa","scpc","boa( |_)vista","cdl"),
     fabricantes_eletrocnicos = vec2regex("cielo","sony","samsung","lg","positivo","philips","aoc","lenovo","semp toshipa","d-link","cce","lexmark","compaq"),
-    varejo = vec2regex("magazine( |_)luiza","vvar","ricardoeletro","pernambucanas","sendas","riachuelo"),
-    transporte_aereo = vec2regex("tam","latam","azul","gol","avianca","lufthansa"),
+    varejo = vec2regex("lame","magazine( |_)luiza","vvar","ricardoeletro","pernambucanas","sendas","riachuelo"),
+    transporte_aereo = vec2regex("tam","latam","_azul","gol","avianca","lufthansa"),
     seguros = vec2regex("segur","confianca","ace","porto( |_)seguro","lider","mapfre","cardif","caixa segur","bradesco auto","bb seguro auto","garantec","bradesco vida","itau segur","assurant","zurich","luizaseg","sulamerica"),
-    energia_gas_agua_esgoto = vec2regex("corsan","rio( |_)grande( |_)energia","ceee","aes( |_)sul","sanecap","cab cuiaba","furnas","cedae","energisa","light","cpfl","rge","copel","comgas","cagece","coelce","ampla","fenosa","saae"),
+    energia_gas_agua_esgoto = vec2regex("corsan","rio( |_)grande( |_)energia","ceee","aes( |_)sul","sanecap","cab( |_)cuiaba","furnas","cedae","energisa","light","cpfl","(^| )rge( |$)","copel","comgas","cagece","coelce","ampla","fenosa","saae"),
     fabricantes_linha_branca = vec2regex("brastemp","consul","electrolux","esmaltec","atlas","latina","mueller"),
     agencias_de_viagem = vec2regex("decolar","viajanet","cvc"),
     programas_de_fidelidade = vec2regex("smiles","multiplus","dotz","livelo"),
     planos_de_saude = vec2regex("amil","bradesco saude","qualicorp","sulamerica odontologico","sulamerica saude","odontoprev","unimed","golden cross"),
-    recuperacao_credito = vec2regex("ibi","ativos","recovery"),
+    recuperacao_credito = vec2regex("crefisa","ibi","ativos","recovery"),
     perfumaria = vec2regex("natura","avon","boticario","eudora"),
     supermercados = vec2regex("extra","carrefour","pao de acucar","walmart","big","hiper"),
     pagamento_eletronico = vec2regex("getnet","paypal","pagseguro","ebanx","moip"))
