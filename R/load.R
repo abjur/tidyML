@@ -272,8 +272,8 @@ load_senacon <- function(raw_data){
     dplyr::filter(Sexo %in% c("F","M")) %>%
     janitor::clean_names() %>%
     purrr::set_names(abjutils::rm_accent(names(.))) %>%
-    dplyr::mutate(data_finalizacao = dmy(data_finalizacao),
-                  tempo_reposta = as.numeric(tempo_reposta),
+    dplyr::mutate(data_finalizacao = lubridate::dmy(data_finalizacao),
+                  tempo_reposta = as.numeric(tempo_resposta),
                   procurou_empresa = ifelse(procurou_empresa == "S",T,F),
                   respondida = ifelse(respondida == "S",T,F))
 }
